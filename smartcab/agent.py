@@ -70,7 +70,7 @@ class LearningAgent(Agent):
         ###########
         # Set 'state' as a tuple of relevant data for the agent
         state = (waypoint, inputs['light'], inputs['left'], inputs['right'],
-            inputs['oncoming'], deadline)
+            inputs['oncoming'])
 
         return state
 
@@ -87,7 +87,7 @@ class LearningAgent(Agent):
         # Calculate the maximum Q-value of all actions for a given state
         # 从表中把最大的Q值找出
         tmp_items = self.Q[state].items()
-        print "items: ", tmp_items
+        #print "items: ", tmp_items
         tmp_items = sorted(tmp_items, key=lambda x:x[1])
         #maxQ = max(self.Q[state].values())
 
@@ -217,7 +217,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=30)
+    sim.run(n_test=100)
 
 
 if __name__ == '__main__':
