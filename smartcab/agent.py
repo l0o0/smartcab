@@ -26,7 +26,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
-
+        self.trail = 1
 
     def reset(self, destination=None, testing=False):
         """
@@ -45,8 +45,13 @@ class LearningAgent(Agent):
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
 
-        self.epsilon -= 0.05
-
+        #self.epsilon -= 0.05
+        #self.epsilon = self.alpha**self.trail
+        #self.epsilon = 1.0/(self.trail**2)
+        #self.epsilon = math.e**(-self.alpha*self.trail)
+        self.epsilon = math.cos(self.alpha * self.trail)
+        
+        self.trail += 1
         if testing:
             self.alpha = 0
             self.epsilon = 0
@@ -196,6 +201,7 @@ def run():
     #    * alpha   - continuous value for the learning rate, default is 0.5
     agent = env.create_agent(LearningAgent)
     agent.learning=True
+    agent.alpha = 0.4
     #print dir(agent)
     ##############
     # Follow the driving agent
@@ -210,14 +216,19 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=False)
+    sim = Simulator(env,
+            update_delay=0.01,
+            log_metrics=True,
+            display=False,
+            optimized=True
+            )
 
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=100)
+    sim.run(n_test=100, tolerance=0.05)
 
 
 if __name__ == '__main__':
