@@ -11,7 +11,7 @@ class LearningAgent(Agent):
     This is the object you will be modifying.
     """
 
-    def __init__(self, env, learning=False, epsilon=0.95, alpha=0.75):
+    def __init__(self, env, learning=False, epsilon=1, alpha=0.95):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -48,12 +48,14 @@ class LearningAgent(Agent):
         #self.epsilon -= 0.05
         #self.epsilon = self.alpha**self.trail
         #self.epsilon = 1.0/(self.trail**2)
-        self.epsilon = math.e**(-self.alpha*self.trail)
-        #self.epsilon = math.cos(self.alpha * self.trail)
+        #self.epsilon = math.e**(-self.alpha*self.trail)
+        self.epsilon = math.cos(self.trail * math.pi / 3000)
+        #self.alpha = math.cos(self.trail * math.pi / 4000)
+        self.alpha = 0.75 - (self.trail/3000.0)**2
         #print 'epsilon', self.epsilon
 
         self.trail += 1
-
+        #print 'Count', self.trail, self.alpha, self.epsilon, testing
         if testing:
             self.alpha = 0
             self.epsilon = 0
@@ -94,9 +96,8 @@ class LearningAgent(Agent):
         # Calculate the maximum Q-value of all actions for a given state
         # 从表中把最大的Q值找出
         maxQ = max(self.Q[state].values())
-        candidate_actions = [a for a in self.Q[state].keys()
-                                if self.Q[state][a] == maxQ]
-        return random.choice(candidate_actions)
+        
+        return maxQ
 
 
     def createQ(self, state):
@@ -140,7 +141,9 @@ class LearningAgent(Agent):
             if random_num < self.epsilon:
                 action = random.choice(self.valid_actions)
             else:
-                action = self.get_maxQ(state)
+                candidate_actions = [a for a in self.Q[state].keys()
+                                if self.Q[state][a] == self.get_maxQ(state)]
+                action = random.choice(candidate_actions)
         else:
             action = random.choice(self.valid_actions)
         return action
@@ -158,6 +161,7 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
+        #print "Here", state, action
         Q_value = (1-self.alpha)*self.Q[state][action] + self.alpha * reward
         self.Q[state][action] = Q_value
         return
@@ -202,8 +206,8 @@ def run():
     #    * alpha   - continuous value for the learning rate, default is 0.5
     agent = env.create_agent(LearningAgent)
     agent.learning=True
-    agent.alpha = 0.4
-    #print dir(agent)
+    #agent.alpha = 0.4
+
     ##############
     # Follow the driving agent
     # Flags:
@@ -229,7 +233,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=3000, tolerance=0.05)
+    sim.run(n_test=300, tolerance=0.1)
 
 
 if __name__ == '__main__':
